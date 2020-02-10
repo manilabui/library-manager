@@ -4,12 +4,12 @@ from django.contrib.auth.decorators import login_required
 from libraryapp.models import Librarian, model_factory
 from ..connection import Connection
 
-@login_required
-def librarian_list(request):
+
+def get_librarian(librarian_id):
     with sqlite3.connect(Connection.db_path) as conn:
         conn.row_factory = model_factory(Librarian)
-        db_cursor = conn.cursor()
 
+        db_cursor = conn.cursor()
         db_cursor.execute("""
         SELECT
             l.id,
@@ -20,14 +20,20 @@ def librarian_list(request):
             u.email
         FROM libraryapp_librarian l
         JOIN auth_user u ON l.user_id = u.id
-        """)
+        WHERE l.id = ?
+        """, (librarian_id,))
 
-        all_librarians = db_cursor.fetchall()
+        return db_cursor.fetchone()
 
-    template_name = 'librarians/list.html'
 
-    context = {
-        'all_librarians': all_librarians
-    }
+@login_required
+def librarian_details(request, librarian_id):
+    if request.method == 'GET':
+        librarian = get_librarian(librarian_id)
 
-    return render(request, template_name, context)
+        template = 'librarians/detail.html'
+        context = {
+            'librarian': librarian
+        }
+
+        return render(request, template, context)
