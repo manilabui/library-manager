@@ -1,0 +1,19 @@
+{% extends 'shared/base.html' %}
+
+{% block content %}
+    <h1>Add Library</h1>
+
+    <form action="{% url 'libraryapp:libraries' %}" method="post">
+      {% csrf_token %}
+      <fieldset>
+          <label for="title">Title: </label>
+          <input id="title" type="text" name="title">
+      </fieldset>
+      <fieldset>
+          <label for="address">Address: </label>
+          <input id="address" type="text" name="address">
+      </fieldset>
+
+      <input type="submit" value="Add It" />
+    </form>
+{% endblock %}
